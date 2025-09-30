@@ -1,0 +1,100 @@
+<!-- templates/index.html.j2 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AWS EC2 — Which Instance Served Me?</title>
+    <style>
+        :root {
+            --bg: #0b1220;
+            --card: #121a2b;
+            --text: #e6eefc;
+            --muted: #9fb3d9;
+            --accent: #5ea0ff;
+            --good: #22c55e;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+            background: radial-gradient(80vw 80vh at 50% -10%, #203a72 0%, var(--bg) 45%, #09101c 100%);
+            color: var(--text);
+            min-height: 100vh; display: grid; place-items: center; padding: 24px;
+        }
+        .card {
+            width: 100%; max-width: 860px; background: linear-gradient(145deg, #0f1730, var(--card));
+            border: 1px solid rgba(255,255,255,.08); border-radius: 20px; padding: 28px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+        }
+        h1 { margin: 0 0 12px; font-size: 28px; letter-spacing: .2px; }
+        p.lead { margin: 0 0 22px; color: var(--muted); }
+        .grid {
+            display: grid; gap: 14px;
+            grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+            margin: 20px 0 6px;
+        }
+        .tile {
+            background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+            border-radius: 14px; padding: 16px; min-height: 96px;
+        }
+        .k { color: var(--muted); font-size: 12px; letter-spacing: .4px; text-transform: uppercase; }
+        .v { font-size: 20px; margin-top: 6px; word-break: break-all; }
+        .badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(94,160,255,.12); color: var(--accent); border: 1px solid rgba(94,160,255,.35);
+            padding: 8px 12px; border-radius: 999px; font-size: 13px;
+        }
+        .ok { color: var(--good); }
+        footer { margin-top: 20px; color: var(--muted); font-size: 12px; }
+        code { background: rgba(255,255,255,.06); padding: 2px 6px; border-radius: 6px; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<main class="card">
+    <div class="badge">ALB → EC2 Response</div>
+    <h1>Stateless Hello from EC2</h1>
+    <p class="lead">
+        This page is deployed to multiple EC2 instances behind an Application Load Balancer.
+        Each instance renders its own details at deploy time, so you can see which box served you.
+    </p>
+
+    <section class="grid">
+        <div class="tile">
+            <div class="k">Instance Private IP</div>
+            <div class="v">{{ private_ip | default('unknown') }}</div>
+        </div>
+        <div class="tile">
+            <div class="k">Instance Public IP</div>
+            <div class="v">{{ public_ip | default('none / not assigned') }}</div>
+        </div>
+        <div class="tile">
+            <div class="k">Hostname</div>
+            <div class="v">{{ hostname | default('ec2') }}</div>
+        </div>
+        <div class="tile">
+            <div class="k">Instance ID</div>
+            <div class="v">{{ instance_id | default('i-unknown') }}</div>
+        </div>
+        <div class="tile">
+            <div class="k">Availability Zone</div>
+            <div class="v">{{ az | default('az-unknown') }}</div>
+        </div>
+        <div class="tile">
+            <div class="k">Build Time (UTC)</div>
+            <div class="v">{{ build_time | default('at deploy') }}</div>
+        </div>
+    </section>
+
+    <p class="lead">
+        Health check: <span class="ok">/health</span> should return <code>200 OK</code> for the ALB target group.
+    </p>
+
+    <footer>
+        Served via <strong>NGINX</strong>. If you’re testing, use the <strong>ALB DNS name</strong> (not the EC2 IP).
+        Compare with your S3 static site to see EC2 (compute) vs S3 (storage) hosting differences.
+    </footer>
+</main>
+</body>
+</html>
