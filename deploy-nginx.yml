@@ -1,0 +1,28 @@
+- name: Install NGINX and deploy page
+  hosts: webservers
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install NGINX
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+
+    - name: Deploy HTML
+      ansible.builtin.template:
+        src: files/index.html.j2
+        dest: /var/www/html/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Ensure NGINX is running and enabled
+      ansible.builtin.systemd:
+        name: nginx
+        state: started
+        enabled: yes
